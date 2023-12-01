@@ -1,0 +1,31 @@
+{
+	"Comment": "A description of my state machine",
+	"StartAt": "Bedrock InvokeModel",
+	"States": {
+		"Bedrock InvokeModel": {
+			"Type": "Task",
+			"Resource": "arn:aws:states:::bedrock:invokeModel",
+			"Parameters": {
+				"ModelId": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-ultra-v1",
+				"Body": {
+					"prompt.$": "States.Format('You are an API that handles campaigns. Based on the input received, provide an appropriate response a Restful API would give. Return always a valid JSON and no extra information! Required attributes [uuid, name, startDate, endDate, isActive]. Allowed methods: [POST, GET, PATCH]. Allowed paths: [/campaigns, /campaigns/uuid]. The user input is: {}', $$.Execution.Input)",
+					"maxTokens": 800,
+					"temperature": 0.7,
+					"topP": 1
+				}
+			},
+			"ResultSelector": {
+				"text.$": "$.Body.completions[0].data.text"
+			},
+			"Next": "Pass"
+		},
+		"Pass": {
+			"Type": "Pass",
+			"Parameters": {
+				"text.$": "States.StringToJson($.text)"
+			},
+			"OutputPath": "$.text",
+			"End": true
+		}
+	}
+}
