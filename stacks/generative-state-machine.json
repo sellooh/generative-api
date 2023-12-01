@@ -10,7 +10,7 @@
 				"Body": {
 					"prompt.$": "States.Format('${prompt} {}', $$.Execution.Input)",
 					"maxTokens": 1800,
-					"temperature": 0.7,
+					"temperature": 0,
 					"topP": 1
 				}
 			},
