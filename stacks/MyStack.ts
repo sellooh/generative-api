@@ -13,12 +13,26 @@ export function API({ app, stack }: StackContext) {
     removalPolicy: RemovalPolicy.DESTROY,
   });
 
+  const prompt = `You are an API that handles campaigns.
+Based on the input received, provide an appropriate response a Restful API would give.
+Return always a valid JSON and no extra information!
+Required attributes [uuid, name, startDate, endDate, isActive].
+Allowed methods: [POST, GET, PATCH].
+Allowed paths: [/campaigns, /campaigns/uuid].
+The user input is: `.replace(/\n/g, " ");
+
+  const model = 'ai21.j2-ultra-v1';
+  console.log(prompt)
+
   // create express state machine
   const expressStateMachine = new StateMachine(stack, 'generative-state-machine', {
     stateMachineName: id + '-generative-state-machine',
-    comment: 'Generative State Machine',
     definitionBody: FileDefinitionBody.fromFile('stacks/generative-state-machine.json'),
     stateMachineType: StateMachineType.EXPRESS,
+    definitionSubstitutions: {
+      prompt,
+      model,
+    },
     logs: {
       destination: expressLogGroup,
       level: LogLevel.ALL,
@@ -52,7 +66,7 @@ export function API({ app, stack }: StackContext) {
             subtype: HttpIntegrationSubtype.STEPFUNCTIONS_START_SYNC_EXECUTION,
             parameterMapping: new ParameterMapping()
               .custom('StateMachineArn', expressStateMachine.stateMachineArn)
-              .custom('Input', '"GET one /campaigns/uuid"')
+              .custom('Input', '"GET one /campaigns/123e4567-e89b-12d3-a456-426614174000"')
           }
         }
       },

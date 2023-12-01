@@ -6,10 +6,10 @@
 			"Type": "Task",
 			"Resource": "arn:aws:states:::bedrock:invokeModel",
 			"Parameters": {
-				"ModelId": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-ultra-v1",
+				"ModelId": "arn:aws:bedrock:us-east-1::foundation-model/${model}",
 				"Body": {
-					"prompt.$": "States.Format('You are an API that handles campaigns. Based on the input received, provide an appropriate response a Restful API would give. Return always a valid JSON and no extra information! Required attributes [uuid, name, startDate, endDate, isActive]. Allowed methods: [POST, GET, PATCH]. Allowed paths: [/campaigns, /campaigns/uuid]. The user input is: {}', $$.Execution.Input)",
-					"maxTokens": 800,
+					"prompt.$": "States.Format('${prompt} {}', $$.Execution.Input)",
+					"maxTokens": 1800,
 					"temperature": 0.7,
 					"topP": 1
 				}
